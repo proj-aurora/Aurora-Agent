@@ -1,0 +1,3 @@
+[submodule "Bridge"]
+	path = Bridge
+	url = https://github.com/proj-aurora/Bridge
