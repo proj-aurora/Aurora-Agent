@@ -9,6 +9,7 @@ using ACL;
 using Agent.Monitors;
 using AICL;
 using LibreHardwareMonitor.Hardware;
+using Newtonsoft.Json;
 using Serilog;
 using Shared.Options;
 
@@ -60,18 +61,25 @@ namespace Agent
             {
                 _logger.Error(dealResponse.Error);
                 _logger.Error("Unable to get response from dealer({0})", _acl.ACLRest.Endpoints.DealerEndpoint.BasePath);
+                Exit(1);
             }
 
             _logger.Debug("DSTRegion: {0} Report URL: {1}", dealResponse.Data.Region, dealResponse.Data.ReportURL);
 
 
+            _logger.Debug("Initializing ACLS...");
+            await _acl.ACLS.InitializeAsync(dealResponse.Data);
+
             _logger.Debug("Starting AICL WebSocket server...");
             var aiclWsStart = _aicl.AICLWs.Start();
             if (!aiclWsStart)
             {
-                _logger.Error("Cannot start AICLWsServer. Make sure port 29100 is not in use.");
+                _logger.Error("Cannot start AICLWsServer. Make sure port 29100/tcp is not in use.");
                 Exit(1);
             }
+
+            Reporter reporter = new Reporter(_acl, _aicl);
+            await reporter.InitializeAsync();
         }
 
         private void Exit(int exitCode = 0)
