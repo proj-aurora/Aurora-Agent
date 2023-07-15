@@ -68,7 +68,8 @@ namespace Agent
 
 
             _logger.Debug("Initializing ACLS...");
-            await _acl.ACLS.InitializeAsync(dealResponse.Data);
+            _acl.InitializeACLS(dealResponse.Data);
+            await _acl.ACLS.InitializeAsync();
 
             _logger.Debug("Starting AICL WebSocket server...");
             var aiclWsStart = _aicl.AICLWs.Start();

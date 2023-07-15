@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ACL;
 using AICL;
+using HidSharp.Reports;
 using Proto;
 using Serilog;
 using Timer = System.Timers.Timer;
@@ -18,8 +19,7 @@ namespace Agent
         private readonly AuroraICL _aicl;
         private readonly Timer _timer;
         private readonly List<AICLFluentBase> _reports;
-
-
+        
         public Reporter(AuroraCL acl, AuroraICL aicl)
         {
             _acl = acl;
@@ -32,7 +32,6 @@ namespace Agent
         public async Task InitializeAsync()
         {
             _aicl.ReportReceived += data => _reports.Add(data);
-
             _timer.AutoReset = true;
             _timer.Elapsed += async (sender, args) => await ReportAsync();
             _timer.Start();
@@ -40,11 +39,15 @@ namespace Agent
 
         public async Task ReportAsync()
         {
-            List<KeyValuePair<string, AICLFluentBase>> reports = new List<KeyValuePair<string, AICLFluentBase>>();
-            _reports.ForEach(x=> reports.Add(new (x.Tag, x)));
-            _reports.Clear();
+            List<KeyValuePair<string, object>> reports;
+            lock (_reports)
+            {
+                reports = new List<KeyValuePair<string, object>>();
+                _reports.ForEach(x => reports.Add(new(x.Tag, x)));
+                _reports.Clear();
 
-            _logger.Information("Uploading Reports...");
+                _logger.Information("Uploading Reports...");
+            }
             await _acl.ACLS.SendReports(reports);
         }
     }
