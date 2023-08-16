@@ -16,5 +16,3 @@ Agent는 사용자의 호스트에 설치되어 호스트의 상태를 실시간
 
 # 흐름도
 ![agent-flow](https://raw.githubusercontent.com/proj-aurora/Aurora-Agent/main/agent-flow.png)
-
-![image](https://github.com/proj-aurora/Aurora-Agent/assets/33867923/9a3c2ea5-c635-455e-adc3-e41cffede6b6)
